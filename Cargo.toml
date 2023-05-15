@@ -1,0 +1,21 @@
+[package]
+name = "tinydbg"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ahash = "0.8.3"
+anyhow = "1.0.71"
+num-traits = "0.2.15"
+seq_io = "0.4.0-alpha.0"
+sucds = "0.7.0"
+
+[profile.dev]
+opt-level = 1
+lto = true
+
+[profile.release]
+opt-level = 3
+lto = true
