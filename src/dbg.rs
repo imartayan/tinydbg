@@ -29,16 +29,18 @@ where
     DT: Dbg<K, T, KT>,
 {
     fn new() -> Self;
-    fn insert(self, kmer: IntKmer<K, T>) -> Self;
+    fn insert(&mut self, kmer: IntKmer<K, T>);
     fn build(self) -> DT;
 }
 
+#[derive(Debug)]
 pub struct HashDbg<const K: usize, T: Base> {
     data: HashSet<T>,
 }
 
 pub type HashDbgBuilder<const K: usize, T> = HashDbg<K, T>;
 
+#[derive(Debug)]
 pub struct DenseDbg<const K: usize, T: Base> {
     data: BitVector,
     phantom: PhantomData<T>,
@@ -46,11 +48,13 @@ pub struct DenseDbg<const K: usize, T: Base> {
 
 pub type DenseDbgBuilder<const K: usize, T> = DenseDbg<K, T>;
 
+#[derive(Debug)]
 pub struct SparseDbg<const K: usize, T: Base> {
     data: EliasFano,
     phantom: PhantomData<T>,
 }
 
+#[derive(Debug)]
 pub struct SparseDbgBuilder<const K: usize, T: Base> {
     positions: BTreeSet<T>,
 }
@@ -70,9 +74,8 @@ macro_rules! impl_traits {
             }
         }
 
-        fn insert(mut self, kmer: IntKmer<K, $t>) -> Self {
+        fn insert(&mut self, kmer: IntKmer<K, $t>) {
             self.data.insert(kmer.to_int());
-            self
         }
 
         fn build(self) -> HashDbg<K, $t> {
@@ -95,10 +98,9 @@ macro_rules! impl_traits {
             }
         }
 
-        fn insert(mut self, kmer: IntKmer<K, $t>) -> Self {
+        fn insert(&mut self, kmer: IntKmer<K, $t>) {
             let pos = kmer.to_int() as usize;
             self.data.set_bit(pos, true).expect("Out of bounds");
-            self
         }
 
         fn build(self) -> DenseDbg<K, $t> {
@@ -124,9 +126,8 @@ macro_rules! impl_traits {
             }
         }
 
-        fn insert(mut self, kmer: IntKmer<K, $t>) -> Self {
+        fn insert(&mut self, kmer: IntKmer<K, $t>) {
             self.positions.insert(kmer.to_int());
-            self
         }
 
         fn build(self) -> SparseDbg<K, $t> {
