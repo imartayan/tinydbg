@@ -2,7 +2,7 @@ use num_traits::int::PrimInt;
 use std::{iter::FilterMap, marker::PhantomData};
 
 pub trait Base: PrimInt {
-    fn from_char(b: u8) -> Option<Self>;
+    fn from_char(b: &u8) -> Option<Self>;
     fn to_char(self) -> u8;
     fn bases() -> [Self; 4];
 }
@@ -21,7 +21,7 @@ pub trait Kmer<const K: usize, T: Base>: Sized + Copy {
     fn from_chars(bytes: &[u8]) -> Self {
         bytes
             .iter()
-            .filter_map(|&b| T::from_char(b))
+            .filter_map(T::from_char)
             .take(K)
             .fold(Self::empty(), |s, base| s.extend(base))
     }
@@ -34,9 +34,9 @@ pub trait Kmer<const K: usize, T: Base>: Sized + Copy {
             phantom: PhantomData,
         }
     }
-    fn iter_from_chars<I: Iterator<Item = u8>>(
+    fn iter_from_chars<'a, I: Iterator<Item = &'a u8>>(
         bytes: I,
-    ) -> KmerIterator<K, T, FilterMap<I, fn(u8) -> Option<T>>, Self> {
+    ) -> KmerIterator<K, T, FilterMap<I, fn(&u8) -> Option<T>>, Self> {
         Self::iter_from_bases(bytes.filter_map(T::from_char))
     }
 }
@@ -101,7 +101,7 @@ macro_rules! impl_traits {
 ($($t:ty),+) => {$(
     impl Base for $t {
         #[inline]
-        fn from_char(b: u8) -> Option<Self> {
+        fn from_char(b: &u8) -> Option<Self> {
             match b {
                 b'A' => Some(0b00),
                 b'C' => Some(0b01),
