@@ -116,7 +116,8 @@ macro_rules! impl_traits {
                 0b00 => b'A',
                 0b01 => b'C',
                 0b10 => b'G',
-                _ => b'T',
+                0b11 => b'T',
+                _ => panic!("Invalid base"),
             }
         }
         #[inline]
