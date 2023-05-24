@@ -76,20 +76,12 @@ where
         if !self.init {
             self.init = true;
             for _ in 0..K {
-                if let Some(base) = self.bases.next() {
-                    self.kmer = self.kmer.extend(base);
-                } else {
-                    return None;
-                }
+                self.kmer = self.kmer.extend(self.bases.next()?);
             }
             Some(self.kmer)
         } else {
-            if let Some(base) = self.bases.next() {
-                self.kmer = self.kmer.append(base);
-                Some(self.kmer)
-            } else {
-                None
-            }
+            self.kmer = self.kmer.append(self.bases.next()?);
+            Some(self.kmer)
         }
     }
 }
