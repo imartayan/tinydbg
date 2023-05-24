@@ -166,61 +166,41 @@ impl_traits!(u8, u16, u32, u64, u128);
 
 impl<const K: usize> Canonical<K, u8> for IntKmer<K, u8> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int();
-        res = (res >> 2 & 0x33) | (res & 0x33) << 2;
-        res = (res >> 4 & 0x0F) | (res & 0x0F) << 4;
+        let mut res = !self.to_int().reverse_bits();
+        res = (res >> 1 & 0x55) | (res & 0x55) << 1;
         Self::from_int(res >> (2 * (4 - K)))
     }
 }
 
 impl<const K: usize> Canonical<K, u16> for IntKmer<K, u16> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int();
-        res = (res >> 2 & 0x3333) | (res & 0x3333) << 2;
-        res = (res >> 4 & 0x0F0F) | (res & 0x0F0F) << 4;
-        res = (res >> 8 & 0x00FF) | (res & 0x00FF) << 8;
+        let mut res = !self.to_int().reverse_bits();
+        res = (res >> 1 & 0x5555) | (res & 0x5555) << 1;
         Self::from_int(res >> (2 * (8 - K)))
     }
 }
 
 impl<const K: usize> Canonical<K, u32> for IntKmer<K, u32> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int();
-        res = (res >> 2 & 0x3333_3333) | (res & 0x3333_3333) << 2;
-        res = (res >> 4 & 0x0F0F_0F0F) | (res & 0x0F0F_0F0F) << 4;
-        res = (res >> 8 & 0x00FF_00FF) | (res & 0x00FF_00FF) << 8;
-        res = (res >> 16 & 0x0000_FFFF) | (res & 0x0000_FFFF) << 16;
+        let mut res = !self.to_int().reverse_bits();
+        res = (res >> 1 & 0x5555_5555) | (res & 0x5555_5555) << 1;
         Self::from_int(res >> (2 * (16 - K)))
     }
 }
 
 impl<const K: usize> Canonical<K, u64> for IntKmer<K, u64> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int();
-        res = (res >> 2 & 0x3333_3333_3333_3333) | (res & 0x3333_3333_3333_3333) << 2;
-        res = (res >> 4 & 0x0F0F_0F0F_0F0F_0F0F) | (res & 0x0F0F_0F0F_0F0F_0F0F) << 4;
-        res = (res >> 8 & 0x00FF_00FF_00FF_00FF) | (res & 0x00FF_00FF_00FF_00FF) << 8;
-        res = (res >> 16 & 0x0000_FFFF_0000_FFFF) | (res & 0x0000_FFFF_0000_FFFF) << 16;
-        res = (res >> 32 & 0x0000_0000_FFFF_FFFF) | (res & 0x0000_0000_FFFF_FFFF) << 32;
+        let mut res = !self.to_int().reverse_bits();
+        res = (res >> 1 & 0x5555_5555_5555_5555) | (res & 0x5555_5555_5555_5555) << 1;
         Self::from_int(res >> (2 * (32 - K)))
     }
 }
 
 impl<const K: usize> Canonical<K, u128> for IntKmer<K, u128> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int();
-        res = (res >> 2 & 0x3333_3333_3333_3333_3333_3333_3333_3333)
-            | (res & 0x3333_3333_3333_3333_3333_3333_3333_3333) << 2;
-        res = (res >> 4 & 0x0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F)
-            | (res & 0x0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F) << 4;
-        res = (res >> 8 & 0x00FF_00FF_00FF_00FF_00FF_00FF_00FF_00FF)
-            | (res & 0x00FF_00FF_00FF_00FF_00FF_00FF_00FF_00FF) << 8;
-        res = (res >> 16 & 0x0000_FFFF_0000_FFFF_0000_FFFF_0000_FFFF)
-            | (res & 0x0000_FFFF_0000_FFFF_0000_FFFF_0000_FFFF) << 16;
-        res = (res >> 32 & 0x0000_0000_FFFF_FFFF_0000_0000_FFFF_FFFF)
-            | (res & 0x0000_0000_FFFF_FFFF_0000_0000_FFFF_FFFF) << 32;
-        res = (res >> 64 & 0x0000_0000_0000_0000_FFFF_FFFF_FFFF_FFFF)
-            | (res & 0x0000_0000_0000_0000_FFFF_FFFF_FFFF_FFFF) << 64;
+        let mut res = !self.to_int().reverse_bits();
+        res = (res >> 1 & 0x5555_5555_5555_5555_5555_5555_5555_5555)
+            | (res & 0x5555_5555_5555_5555_5555_5555_5555_5555) << 1;
         Self::from_int(res >> (2 * (64 - K)))
     }
 }
@@ -253,5 +233,40 @@ mod tests {
     fn test_rc_128() {
         let kmer = IntKmer::<11, u128>::from_chars(b"CATAATCCAGC");
         assert_eq!(kmer.rev_comp().to_chars(), *b"GCTGGATTATG");
+    }
+    #[test]
+    fn rc_rc_8() {
+        for i in 0..64 {
+            let kmer = IntKmer::<3, u8>::from_int(i);
+            assert_eq!(kmer.rev_comp().rev_comp().to_int(), i);
+        }
+    }
+    #[test]
+    fn rc_rc_16() {
+        for i in 0..16384 {
+            let kmer = IntKmer::<7, u16>::from_int(i);
+            assert_eq!(kmer.rev_comp().rev_comp().to_int(), i);
+        }
+    }
+    #[test]
+    fn rc_rc_32() {
+        for i in 0..1_000_000 {
+            let kmer = IntKmer::<15, u32>::from_int(i);
+            assert_eq!(kmer.rev_comp().rev_comp().to_int(), i);
+        }
+    }
+    #[test]
+    fn rc_rc_64() {
+        for i in 0..1_000_000 {
+            let kmer = IntKmer::<15, u64>::from_int(i);
+            assert_eq!(kmer.rev_comp().rev_comp().to_int(), i);
+        }
+    }
+    #[test]
+    fn rc_rc_128() {
+        for i in 0..1_000_000 {
+            let kmer = IntKmer::<15, u128>::from_int(i);
+            assert_eq!(kmer.rev_comp().rev_comp().to_int(), i);
+        }
     }
 }
