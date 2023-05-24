@@ -95,10 +95,7 @@ macro_rules! impl_traits {
         #[inline]
         fn from_char(b: &u8) -> Option<Self> {
             match b {
-                b'A' => Some(0b00),
-                b'C' => Some(0b01),
-                b'G' => Some(0b10),
-                b'T' => Some(0b11),
+                b'A' | b'C' | b'G' | b'T' => Some(((b / 3 - 1) % 4) as $t),
                 _ => None,
             }
         }
