@@ -31,7 +31,7 @@ pub trait Kmer<const K: usize, T: Base>: Sized + Copy {
             kmer: Self::empty(),
             bases,
             init: false,
-            phantom: PhantomData,
+            _phantom: PhantomData,
         }
     }
     fn iter_from_chars<'a, I: Iterator<Item = &'a u8>>(
@@ -62,7 +62,7 @@ where
     kmer: KT,
     bases: I,
     init: bool,
-    phantom: PhantomData<T>,
+    _phantom: PhantomData<T>,
 }
 
 impl<const K: usize, T, I, KT> Iterator for KmerIterator<K, T, I, KT>

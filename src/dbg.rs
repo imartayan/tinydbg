@@ -43,7 +43,7 @@ pub type HashDbgBuilder<const K: usize, T> = HashDbg<K, T>;
 #[derive(Debug)]
 pub struct DenseDbg<const K: usize, T: Base> {
     data: BitVector,
-    phantom: PhantomData<T>,
+    _phantom: PhantomData<T>,
 }
 
 pub type DenseDbgBuilder<const K: usize, T> = DenseDbg<K, T>;
@@ -51,7 +51,7 @@ pub type DenseDbgBuilder<const K: usize, T> = DenseDbg<K, T>;
 #[derive(Debug)]
 pub struct SparseDbg<const K: usize, T: Base> {
     data: EliasFano,
-    phantom: PhantomData<T>,
+    _phantom: PhantomData<T>,
 }
 
 #[derive(Debug)]
@@ -94,7 +94,7 @@ macro_rules! impl_traits {
         fn new() -> Self {
             Self {
                 data: BitVector::from_bit(false, 1 << (2 * K)),
-                phantom: PhantomData,
+                _phantom: PhantomData,
             }
         }
 
@@ -136,7 +136,7 @@ macro_rules! impl_traits {
             efb.extend(self.positions.iter().map(|&x| x as usize)).unwrap();
             SparseDbg {
                 data: efb.build().enable_rank(),
-                phantom: PhantomData,
+                _phantom: PhantomData,
             }
         }
     }
@@ -152,7 +152,7 @@ impl<const K: usize, T: Base> Serializable for DenseDbg<K, T> {
     fn deserialize_from<R: Read>(mut reader: R) -> Result<Self> {
         Ok(Self {
             data: BitVector::deserialize_from(&mut reader)?,
-            phantom: PhantomData,
+            _phantom: PhantomData,
         })
     }
 
@@ -169,7 +169,7 @@ impl<const K: usize, T: Base> Serializable for SparseDbg<K, T> {
     fn deserialize_from<R: Read>(mut reader: R) -> Result<Self> {
         Ok(Self {
             data: EliasFano::deserialize_from(&mut reader)?,
-            phantom: PhantomData,
+            _phantom: PhantomData,
         })
     }
 
