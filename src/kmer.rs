@@ -101,13 +101,11 @@ macro_rules! impl_traits {
         }
         #[inline]
         fn to_char(self) -> u8 {
-            match self {
-                0b00 => b'A',
-                0b01 => b'C',
-                0b10 => b'G',
-                0b11 => b'T',
-                _ => panic!("Invalid base"),
+            const BASE_CHARS: [u8; 4] = [b'A', b'C', b'G', b'T'];
+            if self >= 4 {
+                panic!("Invalid base")
             }
+            BASE_CHARS[self as usize]
         }
         #[inline]
         fn bases() -> [Self; 4] {
