@@ -1,7 +1,6 @@
-use num_traits::int::PrimInt;
 use std::{iter::FilterMap, marker::PhantomData};
 
-pub trait Base: PrimInt {
+pub trait Base: Sized + PartialOrd {
     fn from_char(b: &u8) -> Option<Self>;
     fn to_char(self) -> u8;
     fn bases() -> [Self; 4];
