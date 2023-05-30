@@ -200,7 +200,7 @@ impl<const K: usize> Canonical<K, u128> for IntKmer<K, u128> {
 #[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
 impl<const K: usize> Canonical<K, u8> for IntKmer<K, u8> {
     fn rev_comp(self) -> Self {
-        let mut res = !self.to_int().swap_bytes();
+        let mut res = !self.to_int();
         res = (res >> 4 & 0x0F) | (res & 0x0F) << 4;
         res = (res >> 2 & 0x33) | (res & 0x33) << 2;
         Self::from_int(res >> (2 * (4 - K)))
