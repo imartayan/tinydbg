@@ -151,6 +151,7 @@ macro_rules! impl_traits {
 
 impl_traits!(u8, u16, u32, u64, u128);
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 impl<const K: usize> Canonical<K, u8> for IntKmer<K, u8> {
     fn rev_comp(self) -> Self {
         let mut res = !self.to_int().reverse_bits();
@@ -159,6 +160,7 @@ impl<const K: usize> Canonical<K, u8> for IntKmer<K, u8> {
     }
 }
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 impl<const K: usize> Canonical<K, u16> for IntKmer<K, u16> {
     fn rev_comp(self) -> Self {
         let mut res = !self.to_int().reverse_bits();
@@ -167,6 +169,7 @@ impl<const K: usize> Canonical<K, u16> for IntKmer<K, u16> {
     }
 }
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 impl<const K: usize> Canonical<K, u32> for IntKmer<K, u32> {
     fn rev_comp(self) -> Self {
         let mut res = !self.to_int().reverse_bits();
@@ -175,6 +178,7 @@ impl<const K: usize> Canonical<K, u32> for IntKmer<K, u32> {
     }
 }
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 impl<const K: usize> Canonical<K, u64> for IntKmer<K, u64> {
     fn rev_comp(self) -> Self {
         let mut res = !self.to_int().reverse_bits();
@@ -183,11 +187,64 @@ impl<const K: usize> Canonical<K, u64> for IntKmer<K, u64> {
     }
 }
 
+#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 impl<const K: usize> Canonical<K, u128> for IntKmer<K, u128> {
     fn rev_comp(self) -> Self {
         let mut res = !self.to_int().reverse_bits();
         res = (res >> 1 & 0x5555_5555_5555_5555_5555_5555_5555_5555)
             | (res & 0x5555_5555_5555_5555_5555_5555_5555_5555) << 1;
+        Self::from_int(res >> (2 * (64 - K)))
+    }
+}
+
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+impl<const K: usize> Canonical<K, u8> for IntKmer<K, u8> {
+    fn rev_comp(self) -> Self {
+        let mut res = !self.to_int().swap_bytes();
+        res = (res >> 4 & 0x0F) | (res & 0x0F) << 4;
+        res = (res >> 2 & 0x33) | (res & 0x33) << 2;
+        Self::from_int(res >> (2 * (4 - K)))
+    }
+}
+
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+impl<const K: usize> Canonical<K, u16> for IntKmer<K, u16> {
+    fn rev_comp(self) -> Self {
+        let mut res = !self.to_int().swap_bytes();
+        res = (res >> 4 & 0x0F0F) | (res & 0x0F0F) << 4;
+        res = (res >> 2 & 0x3333) | (res & 0x3333) << 2;
+        Self::from_int(res >> (2 * (8 - K)))
+    }
+}
+
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+impl<const K: usize> Canonical<K, u32> for IntKmer<K, u32> {
+    fn rev_comp(self) -> Self {
+        let mut res = !self.to_int().swap_bytes();
+        res = (res >> 4 & 0x0F0F_0F0F) | (res & 0x0F0F_0F0F) << 4;
+        res = (res >> 2 & 0x3333_3333) | (res & 0x3333_3333) << 2;
+        Self::from_int(res >> (2 * (16 - K)))
+    }
+}
+
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+impl<const K: usize> Canonical<K, u64> for IntKmer<K, u64> {
+    fn rev_comp(self) -> Self {
+        let mut res = !self.to_int().swap_bytes();
+        res = (res >> 4 & 0x0F0F_0F0F_0F0F_0F0F) | (res & 0x0F0F_0F0F_0F0F_0F0F) << 4;
+        res = (res >> 2 & 0x3333_3333_3333_3333) | (res & 0x3333_3333_3333_3333) << 2;
+        Self::from_int(res >> (2 * (32 - K)))
+    }
+}
+
+#[cfg(not(any(target_arch = "arm", target_arch = "aarch64")))]
+impl<const K: usize> Canonical<K, u128> for IntKmer<K, u128> {
+    fn rev_comp(self) -> Self {
+        let mut res = !self.to_int().swap_bytes();
+        res = (res >> 4 & 0x0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F)
+            | (res & 0x0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F_0F0F) << 4;
+        res = (res >> 2 & 0x3333_3333_3333_3333_3333_3333_3333_3333)
+            | (res & 0x3333_3333_3333_3333_3333_3333_3333_3333) << 2;
         Self::from_int(res >> (2 * (64 - K)))
     }
 }
